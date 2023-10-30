@@ -20,6 +20,8 @@ the IAM user is created by the root user.
 IAM group is a coolection of IAM Users. Groups are the best way of control the permissiuons of users,
 because its is easier to revoke ou assign policies of the users. A user can be in many groups.
 
+![image](https://github.com/danielarrais/aws-with-terraform/assets/28496479/85190c5f-8bb1-4c9d-8ba8-80a31fca9611)
+
 ## Roles
 
 IAM Roles are used to assign permissions to resources, as lambda, EFS, EC2, etc, becauses as the users, the resource
