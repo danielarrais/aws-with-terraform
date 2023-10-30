@@ -1,33 +1,31 @@
-# AWS IAM - Identity and Access management
-
-## What is IAM?
+## AWS IAM - Identity and Access management
 
 IAM is a service that helps you control access to AWS resources. You use IAM to control who
 is authenticated (signed in) and authorized (has permissions) to use resources.
 With the IAM we have total control over of access to AWS resources.
 
-## Users
+### Users
 
 IAM Users are entititys used to interact with AWS. The entitys can be a person, a service or an application.
 
-### Root user
+**Root user**
 
 The root user is the main user of the account, the propietary of amazon account. Its diferent of the IAM user, because
 the IAM user is created by the root user.
 
-## Groups
+### Groups
 
 IAM group is a coolection of IAM Users. Groups are the best way of control the permissiuons of users,
 because its is easier to revoke ou assign policies of the users. A user can be in many groups.
 
 ![image](https://github.com/danielarrais/aws-with-terraform/assets/28496479/85190c5f-8bb1-4c9d-8ba8-80a31fca9611)
 
-## Roles
+### Roles
 
 IAM Roles are used to assign permissions to resources, as lambda, EFS, EC2, etc, becauses as the users, the resource
 needs permissions to access others resources.
 
-## Policies
+### Policies
 
 A policie is a JSON document that defines one or more permissions to access the AWS services, that can be assigned to
 users, groups or roles. The JSON has two attributes: version and statement. The version is ther version of policies of
@@ -70,4 +68,19 @@ Condition:
 The AWS has a principle about the policies: Grant least privilege access, meaning you shouldn't give more
 permissions a user needs.
 
+### Password policy
 
+The password policy are roles for users password:
+
+* Password minimum length
+* Password strength:
+  * Requires at lest one uppercase letter
+  * Require at least one lowercase letter
+  * Require at least one number
+  * Require at least one nonalphanumeric character ! @ # $ % ^ & * ( ) _ + - = [ ] { } | '
+* Turn on password expiration (minimum 1 and a maximum 1095 days)
+* Password expiration requires administrator reset: when the option is actived, for renew the password the user requires an action of the adminitrator
+* Allow users to change their own password: you can permit all IAM users in your account to change their own password.
+* Prevent password reuse
+
+### IAM good practices
