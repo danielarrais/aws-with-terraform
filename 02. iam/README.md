@@ -62,6 +62,27 @@ IAM Roles are simmilar to IAM users, but no have password and no can be used to 
 sharing access to services or resources between accounts, to access them as if they were you. You can create roles
 mainly for services and users.
 
+**Define roles using Terraform**
+
+```terraform
+resource "aws_iam_role" "test_role" {
+  name               = "custom-role"
+  assume_role_policy = jsonencode({
+    Version   = "2012-10-17"
+    Statement = [
+      {
+        Action    = "sts:AssumeRole"
+        Effect    = "Allow"
+        Sid       = ""
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      },
+    ]
+  })
+}
+```
+
 [[Amazon Reference](https://docs.aws.amazon.com/en_us/IAM/latest/UserGuide/id_roles.html)]
 
 ### Policies
@@ -113,20 +134,18 @@ permissions a user needs.
 resource "aws_iam_policy" "policy" {
   name        = "custom-policy"
   description = "My custom policy"
-  policy = <<EOT
-  {
-    "Version": "2012-10-17",
-    "Statement": [
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
       {
-        "Action": [
+        "Action" : [
           "s3:ListAllMyBuckets"
         ],
-        "Effect": "Allow",
-        "Resource": "*"
+        "Effect" : "Allow",
+        "Resource" : "*"
       }
     ]
-  }
-EOT
+  })
 }
 ```
 
