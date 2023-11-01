@@ -25,15 +25,41 @@ locals {
   ]
 }
 
+# Create custom policie
+resource "aws_iam_policy" "policy" {
+  name        = "custom-policy"
+  description = "My custom policy"
+  policy = <<EOT
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "s3:ListAllMyBuckets"
+      ],
+      "Effect": "Allow",
+      "Resource": "*"
+    }
+  ]
+}
+EOT
+}
 
 # Create a new group
 resource "aws_iam_group" "console_group" {
   name = "console"
 }
 
+# Attach AWS managed policies to group
 resource "aws_iam_group_policy_attachment" "console_group_policy" {
   group      = aws_iam_group.console_group.name
   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+}
+
+# Attach custom policies to group
+resource "aws_iam_group_policy_attachment" "custom_group_policy" {
+  group      = aws_iam_group.console_group.name
+  policy_arn = aws_iam_policy.policy.arn
 }
 
 # Define password policies

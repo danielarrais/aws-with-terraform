@@ -15,6 +15,28 @@ IAM Users are entititys used to interact with AWS. The entitys can be a person, 
 The root user is the main user of the account, the propietary of amazon account. Its diferent of the IAM user, because
 the IAM user is created by the root user.
 
+**Define users using Terraform**
+
+```terraform
+locals {
+  users = [
+    {
+      name  = "tf-created-01"
+      group = [aws_iam_group.console_group.name]
+    },
+    {
+      name  = "tf-created-02"
+      group = [aws_iam_group.console_group.name]
+    }
+  ]
+}
+
+resource "aws_iam_user" "samples-users" {
+  for_each = {for user in local.users : user.name => user}
+  name     = each.value.name
+}
+```
+
 [[Amazon Reference](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users.html)]
 
 ### Groups
@@ -23,6 +45,14 @@ IAM group is a coolection of IAM Users. Groups are the best way of control the p
 because its is easier to revoke ou assign policies of the users. A user can be in many groups.
 
 ![image](https://github.com/danielarrais/aws-with-terraform/assets/28496479/85190c5f-8bb1-4c9d-8ba8-80a31fca9611)
+
+**Define groups using Terraform**
+
+```terraform
+resource "aws_iam_group" "console_group" {
+  name = "console"
+}
+```
 
 [[Amazon Reference](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_groups.html)]
 
@@ -77,6 +107,29 @@ Condition:
 The AWS has a principle about the policies: Grant least privilege access, meaning you shouldn't give more
 permissions a user needs.
 
+**Define policies using Terraform**
+
+```terraform
+resource "aws_iam_policy" "policy" {
+  name        = "custom-policy"
+  description = "My custom policy"
+  policy = <<EOT
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Action": [
+          "s3:ListAllMyBuckets"
+        ],
+        "Effect": "Allow",
+        "Resource": "*"
+      }
+    ]
+  }
+EOT
+}
+```
+
 [[Amazon Reference](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html)]
 
 ### Password policy
@@ -94,6 +147,19 @@ The password policy are roles for users password:
   an action of the adminitrator
 * Allow users to change their own password: you can permit all IAM users in your account to change their own password.
 * Prevent password reuse
+
+**Define password policies using Terraform**
+
+```terraform
+resource "aws_iam_account_password_policy" "password_policy" {
+  minimum_password_length        = 8
+  require_lowercase_characters   = true
+  require_numbers                = true
+  require_symbols                = true
+  require_uppercase_characters   = true
+  allow_users_to_change_password = true
+}
+```
 
 [[Amazon Reference](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_passwords_account-policy.html)]
 
