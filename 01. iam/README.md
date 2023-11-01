@@ -1,37 +1,38 @@
-## AWS IAM - Identity and Access management
+## IAM - Identity and Access management
 
 IAM is a service that helps you control access to AWS resources. You use IAM to control who
 is authenticated (signed in) and authorized (has permissions) to use resources.
-With the IAM we have total control over of access to AWS resources.
+With the IAM we have total control over access to AWS resources.
 
 [[Amazon Reference](https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html)]
 
 ### Users
 
-IAM Users are entititys used to interact with AWS. The entitys can be a person, a service or an application.
+IAM Users are entities used to interact with AWS. The entities can be a person, a service, or an application.
 
 **Root user**
 
-The root user is the main user of the account, the propietary of amazon account. Its diferent of the IAM user, because
+The root user is the main user of the account, the proprietor of the Amazon account. It is different from the IAM user, because
 the IAM user is created by the root user.
 
 **Define users using Terraform**
 
 ```terraform
 locals {
+  group = "tf-created-group"
   users = [
     {
-      name  = "tf-created-01"
-      group = [aws_iam_group.console_group.name]
+      name  = "tf-created-user-01"
+      group = [local.group]
     },
     {
-      name  = "tf-created-02"
-      group = [aws_iam_group.console_group.name]
+      name  = "tf-created-user-02"
+      group = [local.group]
     }
   ]
 }
 
-resource "aws_iam_user" "samples-users" {
+resource "aws_iam_user" "tf-created-users" {
   for_each = {for user in local.users : user.name => user}
   name     = each.value.name
 }
@@ -41,16 +42,19 @@ resource "aws_iam_user" "samples-users" {
 
 ### Groups
 
-IAM group is a coolection of IAM Users. Groups are the best way of control the permissiuons of users,
-because its is easier to revoke ou assign policies of the users. A user can be in many groups.
+The IAM group is a collection of IAM Users. Groups are the best way of controlling the permissions of users
+because it is easier to revoke or assign policies to the users. A user can be in many groups.
 
 ![image](https://github.com/danielarrais/aws-with-terraform/assets/28496479/85190c5f-8bb1-4c9d-8ba8-80a31fca9611)
 
 **Define groups using Terraform**
 
 ```terraform
-resource "aws_iam_group" "console_group" {
-  name = "console"
+locals {
+  group = "tf-created-group"
+}
+resource "aws_iam_group" "tf-created-group" {
+  name = local.group
 }
 ```
 
@@ -58,15 +62,15 @@ resource "aws_iam_group" "console_group" {
 
 ### Roles
 
-IAM Roles are simmilar to IAM users, but no have password and no can be used to login in AWS console. Is util for
+IAM Roles are similar to IAM users but don't have passwords and they can be used to access the AWS console. Is util for
 sharing access to services or resources between accounts, to access them as if they were you. You can create roles
 mainly for services and users.
 
 **Define roles using Terraform**
 
 ```terraform
-resource "aws_iam_role" "test_role" {
-  name               = "custom-role"
+resource "aws_iam_role" "tf-created-role" {
+  name               = "tf-created-role"
   assume_role_policy = jsonencode({
     Version   = "2012-10-17"
     Statement = [
@@ -87,10 +91,10 @@ resource "aws_iam_role" "test_role" {
 
 ### Policies
 
-A policie is a JSON document that defines one or more permissions to access the AWS services, that can be assigned to
-users, groups or roles. The JSON has two attributes: version and statement. The version is ther version of policies of
+A policy is a JSON document that defines one or more permissions to access the AWS services, that can be assigned to
+users, groups, or roles. The JSON has two attributes: version and statement. The version is the version of the policies of
 AWS IAM, the current is
-2012-10-17. The statement describe the policie, so is the main attribute. Its has the Sid, Effect, Action, Resource and
+2012-10-17. The statement describes the policies, and so is the main attribute. It has the Sid, Effect, Action, Resource and
 Condition:
 
 ```json
@@ -119,11 +123,11 @@ Condition:
 }
 ```
 
-- Sid: The ID of the statement, its optional.
+- Sid: The ID of the statement, is optional.
 - Effect: The effect of the statement, Allow or Deny.
 - Action: The action that the statement allows or denies.
 - Resource: The resource that the statement allows or denies.
-- Condition: The condition that the statement allows or denny.
+- Condition: The condition that the statement allows or denies.
 
 The AWS has a principle about the policies: Grant least privilege access, meaning you shouldn't give more
 permissions a user needs.
@@ -131,10 +135,10 @@ permissions a user needs.
 **Define policies using Terraform**
 
 ```terraform
-resource "aws_iam_policy" "policy" {
-  name        = "custom-policy"
-  description = "My custom policy"
-  policy = jsonencode({
+resource "aws_iam_policy" "tf-created-policy" {
+  name        = "tf-created-policy"
+  description = "Policy created using terraform"
+  policy      = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : [
       {
@@ -153,24 +157,24 @@ resource "aws_iam_policy" "policy" {
 
 ### Password policy
 
-The password policy are roles for users password:
+The password policy is roles for the user's password:
 
 * Password minimum length
 * Password strength:
-    * Requires at lest one uppercase letter
-    * Require at least one lowercase letter
-    * Require at least one number
-    * Require at least one nonalphanumeric character ! @ # $ % ^ & * ( ) _ + - = [ ] { } | '
+  * Requires at least one uppercase letter
+  * Require at least one lowercase letter
+  * Require at least one number
+  * Require at least one nonalphanumeric character ! @ # $ % ^ & * ( ) _ + - = [ ] { } | '
 * Turn on password expiration (minimum 1 and a maximum 1095 days)
-* Password expiration requires administrator reset: when the option is actived, for renew the password the user requires
-  an action of the adminitrator
-* Allow users to change their own password: you can permit all IAM users in your account to change their own password.
+* Password expiration requires administrator reset: when the option is activated, to renew the password the user requires
+  an action of the administrator
+* Allow users to change their password: you can permit all IAM users in your account to change their password.
 * Prevent password reuse
 
 **Define password policies using Terraform**
 
 ```terraform
-resource "aws_iam_account_password_policy" "password_policy" {
+resource "aws_iam_account_password_policy" "password-policy" {
   minimum_password_length        = 8
   require_lowercase_characters   = true
   require_numbers                = true
@@ -191,6 +195,6 @@ resource "aws_iam_account_password_policy" "password_policy" {
 * Use and enforce the use of MFA.
 * Create and use roles for giving permissions to AWS services.
 * Use Access keys for programmatic access (CLI/SDK).
-* Audit permissions of groups using IAM Credential reports and IAM Access Adivisor.
+* Audit permissions of groups using IAM Credential reports and IAM Access Advisor.
 
 [[Amazon Reference](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html)]
