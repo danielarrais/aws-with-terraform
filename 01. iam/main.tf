@@ -87,6 +87,7 @@ resource "aws_iam_user_group_membership" "add-users-to-groups" {
   groups     = each.value.group
   user       = each.value.name
   depends_on = [
-    aws_iam_user.tf-created-users
+    aws_iam_user.tf-created-users,
+    aws_iam_group.tf-created-group
   ]
 }
