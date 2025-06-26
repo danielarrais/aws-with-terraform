@@ -62,7 +62,7 @@ resource "aws_iam_group" "tf-created-group" {
 
 ### Roles
 
-IAM Roles are similar to IAM users but don't have passwords and they can be used to access the AWS console. Is util for
+IAM Roles are similar to IAM users but don't have passwords, and they can be used to access the AWS console. Is util for
 sharing access to services or resources between accounts, to access them as if they were you. You can create roles
 mainly for services and users.
 

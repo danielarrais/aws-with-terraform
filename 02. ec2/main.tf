@@ -1,10 +1,10 @@
-# Create SSH key pair
+# Create SSH key pair (it's necessary to configure EC2 instances)
 resource "aws_key_pair" "tf-created-ssh-key" {
   key_name   = "tf-created-ssh-key"
   public_key = file("~/.ssh/ec2.pub")
 }
 
-# Create security group
+# Create security group to allow SSH connections in EC2 instances
 resource "aws_security_group" "tf-created-security-group-to-ec2" {
   name        = "tf-created-security-group-to-ec2"
   description = "Allow SSH and HTTP"
@@ -18,7 +18,7 @@ resource "aws_security_group" "tf-created-security-group-to-ec2" {
   }
 }
 
-# Attach rule to enable access to port 22
+# Attach rule to enable access to port 22 of EC2 instance
 resource "aws_security_group_rule" "tf-created-security-group-rule-ssh" {
   security_group_id = aws_security_group.tf-created-security-group-to-ec2.id
   type        = "ingress"
@@ -31,7 +31,7 @@ resource "aws_security_group_rule" "tf-created-security-group-rule-ssh" {
   ]
 }
 
-# Attach rule to enable access to port 80
+# Attach rule to enable access to port 80 of EC2 instance
 resource "aws_security_group_rule" "tf-created-security-group-rule-http" {
   security_group_id = aws_security_group.tf-created-security-group-to-ec2.id
   type        = "ingress"

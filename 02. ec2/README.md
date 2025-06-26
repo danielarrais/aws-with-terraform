@@ -6,11 +6,11 @@ Knowing EC2 is fundamental to undestand how the Cloud works.
 ### Configurations options
 On moment on launch the EC2 instance we have many options for configure VM:
 
-- The operation System (OS): Linux, Windows or Mac OS
+- The operating System (OS): Linux, Windows or macOS
 - How much compute power and cores (CPU), random-access memory (RAM)
 - How much storage space:
     * Network-attached (EBS and EFS)
-    * Hardaware (EC2 Instance Store)
+    * Hardware (EC2 Instance Store)
 - Network card: speed of the card, public IP address
 - Firewall rules: security group
 - Bootstrap script (run at first launch): EC2 User Data
@@ -32,4 +32,5 @@ sudo systemctl enable docker
 sudo docker run -it --rm -d -p 80:80 --name web nginxdemos/hello
 ```
 
-With this script after the instance is launched, we can access the nginx conteiner on port 80.
+With this script after the instance is launched, we can access the nginx container on port 80.
+
