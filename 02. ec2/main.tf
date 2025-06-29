@@ -1,6 +1,11 @@
+# Import EC2 Module
+module "ec2" {
+  source = "../02. ec2"
+}
+
 # Create SSH key pair (it's necessary to configure EC2 instances)
 resource "aws_key_pair" "tf-created-ssh-key" {
-  key_name   = "tf-created-ssh-key"
+  key_name = "tf-created-ssh-key"
   public_key = file("~/.ssh/ec2.pub")
 }
 
@@ -11,9 +16,9 @@ resource "aws_security_group" "tf-created-security-group-to-ec2" {
 
   # Default rules
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
@@ -21,10 +26,10 @@ resource "aws_security_group" "tf-created-security-group-to-ec2" {
 # Attach rule to enable access to port 22 of EC2 instance
 resource "aws_security_group_rule" "tf-created-security-group-rule-ssh" {
   security_group_id = aws_security_group.tf-created-security-group-to-ec2.id
-  type        = "ingress"
-  to_port     = 22
-  from_port   = 22
-  protocol    = "tcp"
+  type              = "ingress"
+  to_port           = 22
+  from_port         = 22
+  protocol          = "tcp"
   cidr_blocks = ["0.0.0.0/0"]
   depends_on = [
     aws_security_group.tf-created-security-group-to-ec2
@@ -34,23 +39,54 @@ resource "aws_security_group_rule" "tf-created-security-group-rule-ssh" {
 # Attach rule to enable access to port 80 of EC2 instance
 resource "aws_security_group_rule" "tf-created-security-group-rule-http" {
   security_group_id = aws_security_group.tf-created-security-group-to-ec2.id
-  type        = "ingress"
-  to_port     = 80
-  from_port   = 80
-  protocol    = "tcp"
+  type              = "ingress"
+  to_port           = 80
+  from_port         = 80
+  protocol          = "tcp"
   cidr_blocks = ["0.0.0.0/0"]
   depends_on = [
     aws_security_group.tf-created-security-group-to-ec2
   ]
 }
 
+# Create a role
+resource "aws_iam_role" "tf-created-role-to-ec2-access-iam" {
+  name = "tf-created-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      },
+    ]
+  })
+}
+
+# Attach a policy to tf-created-role-to-ec2-access-iam
+resource "aws_iam_role_policy_attachment" "iam_readonly" {
+  role       = aws_iam_role.tf-created-role-to-ec2-access-iam.name
+  policy_arn = "arn:aws:iam::aws:policy/IAMReadOnlyAccess"
+}
+
+# Create a instance profile
+# Read about here: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html
+resource "aws_iam_instance_profile" "tf_created_instance_profile" {
+  name = "tf-created-instance-profile"
+  role = aws_iam_role.tf-created-role-to-ec2-access-iam.name
+}
+
 # Create EC2 instance
 resource "aws_instance" "tf-created-ec2" {
-  ami             = "ami-01bc990364452ab3e"
-  instance_type   = "t2.micro"
-  key_name        = aws_key_pair.tf-created-ssh-key.key_name
+  ami                  = "ami-01bc990364452ab3e"
+  instance_type        = "t2.micro"
+  key_name             = aws_key_pair.tf-created-ssh-key.key_name
   security_groups = [aws_security_group.tf-created-security-group-to-ec2.name]
-  user_data       = file("./02. ec2/user-data.sh")
+  user_data = file("./02. ec2/user-data.sh")
+  iam_instance_profile = aws_iam_instance_profile.tf_created_instance_profile.name
 
   ebs_block_device {
     device_name = "/dev/xvda"
