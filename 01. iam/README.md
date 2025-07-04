@@ -19,20 +19,20 @@ the IAM user is created by the root user.
 
 ```terraform
 locals {
-  group = "tf-created-group"
+  group = "tf-group"
   users = [
     {
-      name  = "tf-created-user-01"
+      name  = "tf-user-01"
       group = [local.group]
     },
     {
-      name  = "tf-created-user-02"
+      name  = "tf-user-02"
       group = [local.group]
     }
   ]
 }
 
-resource "aws_iam_user" "tf-created-users" {
+resource "aws_iam_user" "tf-users" {
   for_each = {for user in local.users : user.name => user}
   name     = each.value.name
 }
@@ -51,9 +51,9 @@ because it is easier to revoke or assign policies to the users. A user can be in
 
 ```terraform
 locals {
-  group = "tf-created-group"
+  group = "tf-group"
 }
-resource "aws_iam_group" "tf-created-group" {
+resource "aws_iam_group" "tf-group" {
   name = local.group
 }
 ```
@@ -69,8 +69,8 @@ mainly for services and users.
 **Define roles using Terraform**
 
 ```terraform
-resource "aws_iam_role" "tf-created-role" {
-  name               = "tf-created-role"
+resource "aws_iam_role" "tf-role" {
+  name               = "tf-role"
   assume_role_policy = jsonencode({
     Version   = "2012-10-17"
     Statement = [
@@ -135,8 +135,8 @@ permissions a user needs.
 **Define policies using Terraform**
 
 ```terraform
-resource "aws_iam_policy" "tf-created-policy" {
-  name        = "tf-created-policy"
+resource "aws_iam_policy" "tf-policy" {
+  name        = "tf-policy"
   description = "Policy created using terraform"
   policy      = jsonencode({
     "Version" : "2012-10-17",
