@@ -10,3 +10,11 @@ variable "ssh-key-name" {
 variable "sg-ssh-and-http-name" {
   type = string
 }
+
+variable "ec2-ebs-vol-two" {
+  type = string
+}
+
+variable "ec2-ebs-vol-one" {
+  type = string
+}

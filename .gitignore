@@ -34,4 +34,4 @@ override.tf.json
 terraform.rc
 
 .idea
-/03. ec2/.terraform.lock.hcl
+/04. ec2-instances/.terraform.lock.hcl

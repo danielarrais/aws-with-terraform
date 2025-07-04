@@ -9,14 +9,16 @@ resource "aws_iam_instance_profile" "tf_created_instance_profile" {
 resource "aws_instance" "tf-ec2" {
   ami           = "ami-01bc990364452ab3e"
   instance_type = "t2.micro"
+  availability_zone = ""
   key_name      = var.ssh-key-name
   security_groups = [
     var.sg-ssh-and-http-name
   ]
-  user_data = file("./03. ec2/user-data.sh")
+  user_data = file("./04. ec2-instances/user-data.sh")
   iam_instance_profile = aws_iam_instance_profile.tf_created_instance_profile.name
 
   ebs_block_device {
+
     device_name = "/dev/xvda"
     volume_size = 30
     volume_type = "gp3"
