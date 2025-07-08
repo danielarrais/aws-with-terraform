@@ -12,10 +12,24 @@ locals {
   ]
 }
 
-
 # Create a role
 resource "aws_iam_role" "tf-role-to-ec2-access-iam" {
-  name = "tf-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      },
+    ]
+  })
+}
+
+# Create a role to allows ec2 access efs
+resource "aws_iam_role" "tf-role-to-ec2-access-efs" {
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
