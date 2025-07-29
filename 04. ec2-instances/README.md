@@ -60,5 +60,3 @@ Sample: m5.2Xlarge
 - Accelerated Computing
 - Storage Optimized
 - HPC Optimized
-
-### AMI

@@ -20,9 +20,13 @@ resource "aws_instance" "tf-ec2-1" {
   associate_public_ip_address = true
 
   # Format the EBS vol and start a nginx server
-  user_data = templatefile("${path.module}/user-data.sh", {
-    efs_dns = var.ec2-efs-dns
-  })
+  user_data_base64 = base64encode(
+    templatefile("${path.module}/user-data.sh", {
+      efs_dns = var.ec2-efs-dns
+    })
+  )
+
+  user_data_replace_on_change = true
 
   # Create a ebs vol
   ebs_block_device {
