@@ -5,17 +5,32 @@ module "iam" {
 
 module "ec2-vpc" {
   source = "./05. vpc"
+
+  depends_on = [
+    module.iam
+  ]
 }
 
 module "ec2-security" {
   source = "./02. ec2-security"
-  vpc = module.ec2-vpc.main_vpc
+  vpc    = module.ec2-vpc.main_vpc
+
+  depends_on = [
+    module.iam,
+    module.ec2-vpc
+  ]
 }
 
 module "ec2-storage" {
-  source = "./03. ec2-storage"
-  vpc = module.ec2-vpc.main_vpc
+  source          = "./03. ec2-storage"
+  vpc             = module.ec2-vpc.main_vpc
   sg-efs-basic-id = module.ec2-security.sg-efs-basic-id
+
+  depends_on = [
+    module.iam,
+    module.ec2-vpc,
+    module.ec2-security
+  ]
 }
 
 # Import EC2 Module
@@ -24,8 +39,8 @@ module "ec2" {
   vpc = module.ec2-vpc.main_vpc
 
   # ec2 security
-  role_ec2_access_iam_name =  module.iam.role_ec2_access_iam_name
-  sg-ec2-basic-id = module.ec2-security.sg-ec2-basic-id
+  role_ec2_access_iam_name = module.iam.role_ec2_access_iam_name
+  sg-ec2-basic-id          = module.ec2-security.sg-ec2-basic-id
   ssh-key-name = module.ec2-security.ssh-key-name
 
   # ebs volumes arn's
@@ -33,8 +48,28 @@ module "ec2" {
   ec2-ebs-vol-two-id = module.ec2-storage.ec2-ebs-vol-two-id
 
   # efs ids
-  ec2-efs-dns       = module.ec2-storage.ec2-efs-multi-az-dns
+  ec2-efs-dns = module.ec2-storage.ec2-efs-multi-az-dns
+
+  depends_on = [
+    module.iam,
+    module.ec2-vpc,
+    module.ec2-security,
+    module.ec2-storage
+  ]
 }
+
+module "load-balances-auto-scaling" {
+  source = "./06. load-balances-and-auto-scaling"
+  vpc    = module.ec2-vpc.main_vpc
+  ec2_ids = [module.ec2.instances.ec2-1.id, module.ec2.instances.ec2-2.id]
+
+  depends_on = [
+    module.iam,
+    module.ec2-vpc,
+    module.ec2
+  ]
+}
+
 
 terraform {
   required_version = "~> 1.12.2"
